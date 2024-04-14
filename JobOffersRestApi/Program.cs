@@ -1,4 +1,6 @@
+using System.Reflection;
 using JobOffersRestApi.Entities;
+using JobOffersRestApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobOffersRestApi;
@@ -18,6 +20,8 @@ public class Program
         builder.Services.AddDbContext<JobOffersDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("JobOffersDbConnection")));
         builder.Services.AddScoped<JobOffersSeeder>();
+        builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        builder.Services.AddScoped<ICitiesService, CitiesService>();
         
         var app = builder.Build();
 
