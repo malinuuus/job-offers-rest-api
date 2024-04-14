@@ -1,6 +1,10 @@
 using System.Reflection;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using JobOffersRestApi.Entities;
 using JobOffersRestApi.Middleware;
+using JobOffersRestApi.Models.JobOffer;
+using JobOffersRestApi.Models.Validators;
 using JobOffersRestApi.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +19,10 @@ public class Program
         // Add services to the container.
 
         builder.Services.AddControllers();
+        builder.Services
+            .AddValidatorsFromAssembly(typeof(Program).Assembly)
+            .AddFluentValidationAutoValidation();
+        
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -23,6 +31,9 @@ public class Program
         builder.Services.AddScoped<JobOffersSeeder>();
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         builder.Services.AddScoped<ICitiesService, CitiesService>();
+        builder.Services.AddScoped<IJobOffersService, JobOffersService>();
+        builder.Services.AddScoped<IValidator<CreateJobOfferDto>, JobOfferDtoValidator>();
+        builder.Services.AddScoped<IValidator<UpdateJobOfferDto>, JobOfferDtoValidator>();
         builder.Services.AddScoped<ErrorHandlingMiddleware>();
         
         var app = builder.Build();
