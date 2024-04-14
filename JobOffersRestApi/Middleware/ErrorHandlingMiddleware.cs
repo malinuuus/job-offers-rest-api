@@ -4,6 +4,13 @@ namespace JobOffersRestApi.Middleware;
 
 public class ErrorHandlingMiddleware : IMiddleware
 {
+    private readonly IWebHostEnvironment _hostEnvironment;
+
+    public ErrorHandlingMiddleware(IWebHostEnvironment hostEnvironment)
+    {
+        _hostEnvironment = hostEnvironment;
+    }
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
@@ -18,7 +25,8 @@ public class ErrorHandlingMiddleware : IMiddleware
         catch (Exception e)
         {
             context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("Something went wrong");
+            string message = _hostEnvironment.IsDevelopment() ? e.Message : "Something went wrong";
+            await context.Response.WriteAsync(message);
         }
     }
 }
