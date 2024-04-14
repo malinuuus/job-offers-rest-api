@@ -1,5 +1,6 @@
 using System.Reflection;
 using JobOffersRestApi.Entities;
+using JobOffersRestApi.Middleware;
 using JobOffersRestApi.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,7 @@ public class Program
         builder.Services.AddScoped<JobOffersSeeder>();
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         builder.Services.AddScoped<ICitiesService, CitiesService>();
+        builder.Services.AddScoped<ErrorHandlingMiddleware>();
         
         var app = builder.Build();
 
@@ -36,8 +38,8 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseMiddleware<ErrorHandlingMiddleware>();
         app.UseHttpsRedirection();
-
         app.UseAuthorization();
 
 

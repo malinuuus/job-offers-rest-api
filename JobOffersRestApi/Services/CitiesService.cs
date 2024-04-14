@@ -34,11 +34,7 @@ public class CitiesService : ICitiesService
 
     public CityDto GetById(int id)
     {
-        var city = _dbContext.Cities.Find(id);
-
-        if (city is null)
-            throw new NotFoundException("City not found");
-        
+        var city = GetCity(id);
         var cityDto = _mapper.Map<CityDto>(city);
         return cityDto;
     }
@@ -53,23 +49,25 @@ public class CitiesService : ICitiesService
 
     public void Delete(int id)
     {
-        var city = _dbContext.Cities.Find(id);
-
-        if (city is null)
-            throw new NotFoundException("City not found");
-
+        var city = GetCity(id);
         _dbContext.Cities.Remove(city);
         _dbContext.SaveChanges();
     }
 
     public void Update(int id, UpdateCityDto dto)
     {
+        var city = GetCity(id);
+        _mapper.Map(dto, city);
+        _dbContext.SaveChanges();
+    }
+
+    private City GetCity(int id)
+    {
         var city = _dbContext.Cities.Find(id);
 
         if (city is null)
             throw new NotFoundException("City not found");
 
-        _mapper.Map(dto, city);
-        _dbContext.SaveChanges();
+        return city;
     }
 }
