@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using JobOffersRestApi.Entities;
 using JobOffersRestApi.Middleware;
+using JobOffersRestApi.Models.JobApplication;
 using JobOffersRestApi.Models.JobOffer;
 using JobOffersRestApi.Models.Validators;
 using JobOffersRestApi.Services;
@@ -32,8 +33,10 @@ public class Program
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         builder.Services.AddScoped<ICitiesService, CitiesService>();
         builder.Services.AddScoped<IJobOffersService, JobOffersService>();
+        builder.Services.AddScoped<IJobApplicationsService, JobJobApplicationsService>();
         builder.Services.AddScoped<IValidator<CreateJobOfferDto>, JobOfferDtoValidator>();
         builder.Services.AddScoped<IValidator<UpdateJobOfferDto>, JobOfferDtoValidator>();
+        builder.Services.AddScoped<IValidator<UpdateJobApplicationDto>, UpdateJobApplicationDtoValidator>();
         builder.Services.AddScoped<ErrorHandlingMiddleware>();
         
         var app = builder.Build();
