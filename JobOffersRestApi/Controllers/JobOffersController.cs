@@ -1,4 +1,5 @@
 ﻿using JobOffersRestApi.Entities;
+using JobOffersRestApi.Models;
 using JobOffersRestApi.Models.JobOffer;
 using JobOffersRestApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ public class JobOffersController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<JobOfferDto>> GetAll([FromQuery] JobOfferQuery query)
+    public ActionResult<PageResult<JobOfferDto>> GetAll([FromQuery] JobOfferQuery query)
     {
         var jobOffersDtos = _jobOffersService.GetAll(query);
         return Ok(jobOffersDtos);

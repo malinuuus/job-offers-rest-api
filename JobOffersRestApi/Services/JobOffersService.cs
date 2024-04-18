@@ -2,6 +2,7 @@
 using AutoMapper;
 using JobOffersRestApi.Entities;
 using JobOffersRestApi.Exceptions;
+using JobOffersRestApi.Models;
 using JobOffersRestApi.Models.JobOffer;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ namespace JobOffersRestApi.Services;
 
 public interface IJobOffersService
 {
-    IEnumerable<JobOfferDto> GetAll(JobOfferQuery query);
+    PageResult<JobOfferDto> GetAll(JobOfferQuery query);
     JobOfferDto GetById(int id);
     int Create(CreateJobOfferDto dto);
     void Delete(int id);
@@ -29,7 +30,7 @@ public class JobOffersService : IJobOffersService
         _sortColumnNamesService = sortColumnNamesService;
     }
 
-    public IEnumerable<JobOfferDto> GetAll(JobOfferQuery query)
+    public PageResult<JobOfferDto> GetAll(JobOfferQuery query)
     {
         var searchPhrase = query.SearchPhrase?.ToLower();
 
@@ -57,8 +58,9 @@ public class JobOffersService : IJobOffersService
             .Take(query.PageSize)
             .ToList();
         
-        var jobOffersDtos = _mapper.Map<IEnumerable<JobOfferDto>>(jobOffers);
-        return jobOffersDtos;
+        var jobOffersDtos = _mapper.Map<List<JobOfferDto>>(jobOffers);
+        var result = new PageResult<JobOfferDto>(jobOffersDtos, baseQuery.Count(), query.PageSize, query.PageNumber);
+        return result;
     }
 
     public JobOfferDto GetById(int id)
