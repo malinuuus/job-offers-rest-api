@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq.Expressions;
+using AutoMapper;
 using JobOffersRestApi.Entities;
 using JobOffersRestApi.Exceptions;
 using JobOffersRestApi.Models.JobOffer;
@@ -8,7 +9,7 @@ namespace JobOffersRestApi.Services;
 
 public interface IJobOffersService
 {
-    IEnumerable<JobOfferDto> GetAll();
+    IEnumerable<JobOfferDto> GetAll(JobOfferQuery query);
     JobOfferDto GetById(int id);
     int Create(CreateJobOfferDto dto);
     void Delete(int id);
@@ -19,19 +20,41 @@ public class JobOffersService : IJobOffersService
 {
     private readonly JobOffersDbContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly ISortColumnNamesService _sortColumnNamesService;
 
-    public JobOffersService(JobOffersDbContext dbContext, IMapper mapper)
+    public JobOffersService(JobOffersDbContext dbContext, IMapper mapper, ISortColumnNamesService sortColumnNamesService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
+        _sortColumnNamesService = sortColumnNamesService;
     }
 
-    public IEnumerable<JobOfferDto> GetAll()
+    public IEnumerable<JobOfferDto> GetAll(JobOfferQuery query)
     {
-        var jobOffers = _dbContext.JobOffers
+        var searchPhrase = query.SearchPhrase?.ToLower();
+
+        var baseQuery = _dbContext.JobOffers
             .Include(j => j.Company)
             .Include(j => j.City)
             .Include(j => j.ContractType)
+            .Where(j => searchPhrase == null
+                        || j.Title.ToLower().Contains(searchPhrase)
+                        || j.Description.ToLower().Contains(searchPhrase)
+                        || j.Company.Name.ToLower().Contains(searchPhrase));
+
+        if (!string.IsNullOrEmpty(query.SortBy))
+        {
+            var columnsSelectors = _sortColumnNamesService.GetColumnsSelectors();
+            var selectedColumn = columnsSelectors[query.SortBy.ToLower()];
+            
+            baseQuery = query.SortDirection == SortDirection.Asc
+                ? baseQuery.OrderBy(selectedColumn)
+                : baseQuery.OrderByDescending(selectedColumn);
+        }
+        
+        var jobOffers = baseQuery
+            .Skip((query.PageNumber - 1) * query.PageSize)
+            .Take(query.PageSize)
             .ToList();
         
         var jobOffersDtos = _mapper.Map<IEnumerable<JobOfferDto>>(jobOffers);

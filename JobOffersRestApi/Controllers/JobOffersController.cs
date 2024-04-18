@@ -17,9 +17,9 @@ public class JobOffersController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<JobOfferDto>> GetAll()
+    public ActionResult<IEnumerable<JobOfferDto>> GetAll([FromQuery] JobOfferQuery query)
     {
-        var jobOffersDtos = _jobOffersService.GetAll();
+        var jobOffersDtos = _jobOffersService.GetAll(query);
         return Ok(jobOffersDtos);
     }
 

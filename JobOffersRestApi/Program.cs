@@ -34,9 +34,11 @@ public class Program
         builder.Services.AddScoped<ICitiesService, CitiesService>();
         builder.Services.AddScoped<IJobOffersService, JobOffersService>();
         builder.Services.AddScoped<IJobApplicationsService, JobJobApplicationsService>();
+        builder.Services.AddScoped<ISortColumnNamesService, SortColumnNamesService>();
         builder.Services.AddScoped<IValidator<CreateJobOfferDto>, JobOfferDtoValidator>();
         builder.Services.AddScoped<IValidator<UpdateJobOfferDto>, JobOfferDtoValidator>();
         builder.Services.AddScoped<IValidator<UpdateJobApplicationDto>, UpdateJobApplicationDtoValidator>();
+        builder.Services.AddScoped<IValidator<JobOfferQuery>, JobOfferQueryValidator>();
         builder.Services.AddScoped<ErrorHandlingMiddleware>();
         
         var app = builder.Build();
