@@ -30,5 +30,7 @@ public class JobOffersMappingProfile : Profile
 
         CreateMap<JobApplication, JobApplicationDto>()
             .ForMember(dto => dto.Status, c => c.MapFrom(j => j.IsRejected ? "Rejected" : j.IsApproved ? "Approved" : "Pending"));
+
+        CreateMap<RegisterRecruiteeDto, User>();
     }
 }
