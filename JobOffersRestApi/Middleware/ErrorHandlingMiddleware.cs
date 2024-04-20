@@ -22,6 +22,11 @@ public class ErrorHandlingMiddleware : IMiddleware
             context.Response.StatusCode = 404;
             await context.Response.WriteAsync(notFoundException.Message);
         }
+        catch (BadHttpRequestException badHttpRequestException)
+        {
+            context.Response.StatusCode = badHttpRequestException.StatusCode;
+            await context.Response.WriteAsync(badHttpRequestException.Message);
+        }
         catch (Exception e)
         {
             context.Response.StatusCode = 500;

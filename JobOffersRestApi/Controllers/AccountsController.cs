@@ -21,4 +21,11 @@ public class AccountsController : ControllerBase
         _accountsService.RegisterRecruitee(dto);
         return Ok();
     }
+
+    [HttpPost("login")]
+    public ActionResult Login([FromBody] LoginDto dto)
+    {
+        string token = _accountsService.GenerateJwt(dto);
+        return Ok(token);
+    }
 }
