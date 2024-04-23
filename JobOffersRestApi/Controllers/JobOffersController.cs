@@ -2,6 +2,7 @@
 using JobOffersRestApi.Models;
 using JobOffersRestApi.Models.JobOffer;
 using JobOffersRestApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobOffersRestApi.Controllers;
@@ -32,6 +33,7 @@ public class JobOffersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Recruiter,Admin")]
     public ActionResult Create([FromBody] CreateJobOfferDto dto)
     {
         var id = _jobOffersService.Create(dto);
@@ -39,6 +41,7 @@ public class JobOffersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Recruiter,Admin")]
     public ActionResult Delete([FromRoute] int id)
     {
         _jobOffersService.Delete(id);
@@ -46,6 +49,7 @@ public class JobOffersController : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Roles = "Recruiter,Admin")]
     public ActionResult Update([FromRoute] int id, [FromBody] UpdateJobOfferDto dto)
     {
         _jobOffersService.Update(id, dto);

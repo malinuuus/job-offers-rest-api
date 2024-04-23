@@ -1,5 +1,6 @@
 ﻿using JobOffersRestApi.Models.City;
 using JobOffersRestApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobOffersRestApi.Controllers;
@@ -30,6 +31,7 @@ public class CitiesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public ActionResult Create([FromBody] CreateCityDto dto)
     {
         var id = _citiesService.Create(dto);
@@ -37,6 +39,7 @@ public class CitiesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public ActionResult Delete([FromRoute] int id)
     {
         _citiesService.Delete(id);
@@ -44,6 +47,7 @@ public class CitiesController : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Roles = "Admin")]
     public ActionResult Update([FromRoute] int id, [FromBody] UpdateCityDto dto)
     {
         _citiesService.Update(id, dto);
