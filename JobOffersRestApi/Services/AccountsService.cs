@@ -60,13 +60,16 @@ public class AccountsService : IAccountsService
 
         if (result == PasswordVerificationResult.Failed)
             throw new BadHttpRequestException("Invalid username or password");
-
+        
         var claims = new List<Claim>()
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
             new(ClaimTypes.Role, user.Role.Name)
         };
+        
+        if (user.CompanyId.HasValue)
+            claims.Add(new Claim("CompanyId", user.CompanyId.Value.ToString()));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

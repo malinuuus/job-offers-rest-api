@@ -1,7 +1,10 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
+using JobOffersRestApi.Authorization;
 using JobOffersRestApi.Entities;
 using JobOffersRestApi.Exceptions;
 using JobOffersRestApi.Models.JobApplication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobOffersRestApi.Services;
@@ -19,16 +22,26 @@ public class JobJobApplicationsService : IJobApplicationsService
 {
     private readonly JobOffersDbContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly IUserContextService _userContextService;
+    private readonly IAuthorizationService _authorizationService;
 
-    public JobJobApplicationsService(JobOffersDbContext dbContext, IMapper mapper)
+    public JobJobApplicationsService(JobOffersDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, IUserContextService userContextService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
+        _authorizationService = authorizationService;
+        _userContextService = userContextService;
     }
 
     public IEnumerable<JobApplicationDto> GetAll(int jobOfferId)
     {
         var jobOffer = GetJobOffer(jobOfferId);
+
+        var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, jobOffer, new RecruitersJobOfferRequirement()).Result;
+
+        if (!authorizationResult.Succeeded)
+            throw new ForbiddenException();
+        
         var applicationsDtos = _mapper.Map<IEnumerable<JobApplicationDto>>(jobOffer.Applications);
         return applicationsDtos;
     }
@@ -78,6 +91,8 @@ public class JobJobApplicationsService : IJobApplicationsService
         var jobOffer = _dbContext.JobOffers
             .Include(j => j.Applications)
             .ThenInclude(a => a.Recruitee)
+            .Include(j => j.Company)
+            .ThenInclude(c => c.Recruiters)
             .FirstOrDefault(j => j.Id == jobOfferId);
 
         if (jobOffer is null)

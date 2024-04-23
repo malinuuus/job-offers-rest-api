@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using JobOffersRestApi.Authorization;
 using JobOffersRestApi.Entities;
 using JobOffersRestApi.Middleware;
 using JobOffersRestApi.Models.JobApplication;
@@ -10,6 +11,7 @@ using JobOffersRestApi.Models.User;
 using JobOffersRestApi.Models.Validators;
 using JobOffersRestApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -45,6 +47,7 @@ public class Program
             };
         });
 
+        builder.Services.AddScoped<IAuthorizationHandler, RecruitersJobOfferRequirementHandler>();
         builder.Services.AddControllers();
         builder.Services
             .AddValidatorsFromAssembly(typeof(Program).Assembly)
@@ -69,6 +72,8 @@ public class Program
         builder.Services.AddScoped<IValidator<RegisterRecruiteeDto>, RegisterRecruiteeDtoValidator>();
         builder.Services.AddScoped<ErrorHandlingMiddleware>();
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        builder.Services.AddScoped<IUserContextService, UserContextService>();
+        builder.Services.AddHttpContextAccessor();
         
         var app = builder.Build();
 

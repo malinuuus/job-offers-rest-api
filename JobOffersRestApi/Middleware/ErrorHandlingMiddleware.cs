@@ -27,6 +27,10 @@ public class ErrorHandlingMiddleware : IMiddleware
             context.Response.StatusCode = badHttpRequestException.StatusCode;
             await context.Response.WriteAsync(badHttpRequestException.Message);
         }
+        catch (ForbiddenException forbiddenException)
+        {
+            context.Response.StatusCode = 403;
+        }
         catch (Exception e)
         {
             context.Response.StatusCode = 500;
