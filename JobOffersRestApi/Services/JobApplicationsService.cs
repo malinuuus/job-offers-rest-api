@@ -13,7 +13,7 @@ public interface IJobApplicationsService
 {
     IEnumerable<JobApplicationDto> GetAll(int jobOfferId);
     JobApplicationDto GetById(int jobOfferId, int applicationId);
-    int Create(int jobOfferId, CreateJobApplicationDto dto);
+    int Create(int jobOfferId);
     void Delete(int jobOfferId, int applicationId);
     void Update(int jobOfferId, int applicationId, UpdateJobApplicationDto dto);
 }
@@ -36,11 +36,7 @@ public class JobJobApplicationsService : IJobApplicationsService
     public IEnumerable<JobApplicationDto> GetAll(int jobOfferId)
     {
         var jobOffer = GetJobOffer(jobOfferId);
-
-        var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, jobOffer, new RecruitersJobOfferRequirement()).Result;
-
-        if (!authorizationResult.Succeeded)
-            throw new ForbiddenException();
+        AuthorizeUser(jobOffer);
         
         var applicationsDtos = _mapper.Map<IEnumerable<JobApplicationDto>>(jobOffer.Applications);
         return applicationsDtos;
@@ -53,7 +49,7 @@ public class JobJobApplicationsService : IJobApplicationsService
         return applicationDto;
     }
 
-    public int Create(int jobOfferId, CreateJobApplicationDto dto)
+    public int Create(int jobOfferId)
     {
         GetJobOffer(jobOfferId);
         
@@ -63,7 +59,7 @@ public class JobJobApplicationsService : IJobApplicationsService
             IsRejected = false,
             CreatedAt = DateTime.Now,
             JobOfferId = jobOfferId,
-            RecruiteeId = dto.RecruiteeId
+            RecruiteeId = _userContextService.UserId ?? 0
         };
 
         _dbContext.Applications.Add(jobApplication);
@@ -104,11 +100,21 @@ public class JobJobApplicationsService : IJobApplicationsService
     private JobApplication GetJobApplication(int jobOfferId, int applicationId)
     {
         var jobOffer = GetJobOffer(jobOfferId);
+        AuthorizeUser(jobOffer);
+        
         var application = jobOffer.Applications.FirstOrDefault(a => a.Id == applicationId);
 
         if (application is null)
             throw new NotFoundException("Job application not found");
 
         return application;
+    }
+
+    private void AuthorizeUser(JobOffer jobOffer)
+    {
+        var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, jobOffer, new RecruitersJobOfferRequirement()).Result;
+
+        if (!authorizationResult.Succeeded)
+            throw new ForbiddenException();
     }
 }

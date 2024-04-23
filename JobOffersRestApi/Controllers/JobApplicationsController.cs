@@ -1,5 +1,6 @@
 ﻿using JobOffersRestApi.Models.JobApplication;
 using JobOffersRestApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobOffersRestApi.Controllers;
@@ -30,13 +31,15 @@ public class JobApplicationsController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult Create([FromRoute] int jobOfferId, [FromBody] CreateJobApplicationDto dto)
+    [Authorize(Roles = "Recruitee")]
+    public ActionResult Create([FromRoute] int jobOfferId)
     {
-        var applicationId = _jobApplicationsService.Create(jobOfferId, dto);
+        var applicationId = _jobApplicationsService.Create(jobOfferId);
         return Created($"api/jobOffers/{jobOfferId}/applications/{applicationId}", null);
     }
 
     [HttpDelete("{applicationId}")]
+    [Authorize(Roles = "Admin")]
     public ActionResult Delete([FromRoute] int jobOfferId, [FromRoute] int applicationId)
     {
         _jobApplicationsService.Delete(jobOfferId, applicationId);
