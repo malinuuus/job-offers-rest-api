@@ -4,6 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace JobOffersRestApi.Authorization;
 
+public class RecruitersJobOfferRequirement : IAuthorizationRequirement
+{
+    
+}
+
 public class RecruitersJobOfferRequirementHandler : AuthorizationHandler<RecruitersJobOfferRequirement, JobOffer>
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RecruitersJobOfferRequirement requirement,
