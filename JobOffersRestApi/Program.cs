@@ -64,6 +64,7 @@ public class Program
         builder.Services.AddScoped<IJobOffersService, JobOffersService>();
         builder.Services.AddScoped<IJobApplicationsService, JobJobApplicationsService>();
         builder.Services.AddScoped<IAccountsService, AccountsService>();
+        builder.Services.AddScoped<IFilesService, FilesService>();
         builder.Services.AddScoped<ISortColumnNamesService, SortColumnNamesService>();
         builder.Services.AddScoped<IValidator<CreateJobOfferDto>, JobOfferDtoValidator>();
         builder.Services.AddScoped<IValidator<UpdateJobOfferDto>, JobOfferDtoValidator>();
@@ -86,6 +87,7 @@ public class Program
         });
         
         var app = builder.Build();
+        app.UseStaticFiles();
         app.UseCors("FrontEndClient");
 
         var scope = app.Services.CreateScope();
