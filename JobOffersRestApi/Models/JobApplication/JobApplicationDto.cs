@@ -8,6 +8,8 @@ public class JobApplicationDto
     public bool IsApproved { get; set; }
     public bool IsRejected { get; set; }
     public string Status { get; set; }
+    public string CvFileName { get; set; }
+    public string? AdditionalInfo { get; set; }
     public DateTime CreatedAt { get; set; }
     public RecruiteeDto Recruitee { get; set; }
 }

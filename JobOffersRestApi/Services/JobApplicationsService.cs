@@ -13,7 +13,7 @@ public interface IJobApplicationsService
 {
     IEnumerable<JobApplicationDto> GetAll(int jobOfferId);
     JobApplicationDto GetById(int jobOfferId, int applicationId);
-    int Create(int jobOfferId);
+    int Create(int jobOfferId, CreateJobApplicationDto dto);
     void Delete(int jobOfferId, int applicationId);
     void Update(int jobOfferId, int applicationId, UpdateJobApplicationDto dto);
 }
@@ -24,13 +24,15 @@ public class JobJobApplicationsService : IJobApplicationsService
     private readonly IMapper _mapper;
     private readonly IUserContextService _userContextService;
     private readonly IAuthorizationService _authorizationService;
+    private readonly IFilesService _filesService;
 
-    public JobJobApplicationsService(JobOffersDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, IUserContextService userContextService)
+    public JobJobApplicationsService(JobOffersDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, IUserContextService userContextService, IFilesService filesService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _authorizationService = authorizationService;
         _userContextService = userContextService;
+        _filesService = filesService;
     }
 
     public IEnumerable<JobApplicationDto> GetAll(int jobOfferId)
@@ -49,15 +51,22 @@ public class JobJobApplicationsService : IJobApplicationsService
         return applicationDto;
     }
 
-    public int Create(int jobOfferId)
+    public int Create(int jobOfferId, CreateJobApplicationDto dto)
     {
+        var userName = _userContextService.User.FindFirstValue(ClaimTypes.Name);
+        var fileExt = Path.GetExtension(dto.CvFile.FileName);
+        var fileName = $"cv-{userName.Replace(' ', '-')}-{jobOfferId}{fileExt}";
+        _filesService.Upload(dto.CvFile, fileName);
+
         GetJobOffer(jobOfferId);
-        
+
         var jobApplication = new JobApplication()
         {
             IsApproved = false,
             IsRejected = false,
             CreatedAt = DateTime.Now,
+            CvFileName = fileName,
+            AdditionalInfo = dto.AdditionalInfo,
             JobOfferId = jobOfferId,
             RecruiteeId = _userContextService.UserId ?? 0
         };

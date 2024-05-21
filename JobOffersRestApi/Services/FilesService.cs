@@ -6,7 +6,7 @@ namespace JobOffersRestApi.Services;
 public interface IFilesService
 {
     Models.FileInfo Get(string fileName);
-    void Upload(IFormFile? file);
+    void Upload(IFormFile? file, string? fileName = null);
 }
 
 public class FilesService : IFilesService
@@ -30,12 +30,12 @@ public class FilesService : IFilesService
         return fileInfo;
     }
     
-    public void Upload(IFormFile? file)
+    public void Upload(IFormFile? file, string? fileName = null)
     {
         if (file is null || file.Length <= 0)
             throw new BadHttpRequestException("File not uploaded");
 
-        var filePath = GetFilePath(file.FileName);
+        var filePath = GetFilePath(fileName ?? file.FileName);
         using var stream = new FileStream(filePath, FileMode.Create);
         file.CopyTo(stream);
     }

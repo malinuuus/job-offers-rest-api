@@ -32,9 +32,9 @@ public class JobApplicationsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Recruitee")]
-    public ActionResult Create([FromRoute] int jobOfferId)
+    public ActionResult Create([FromRoute] int jobOfferId, [FromForm] CreateJobApplicationDto dto)
     {
-        var applicationId = _jobApplicationsService.Create(jobOfferId);
+        var applicationId = _jobApplicationsService.Create(jobOfferId, dto);
         return Created($"api/jobOffers/{jobOfferId}/applications/{applicationId}", null);
     }
 
